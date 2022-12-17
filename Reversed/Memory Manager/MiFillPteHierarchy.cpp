@@ -1,3 +1,5 @@
+https://github.com/vxcute/WindowsInternals/blob/main/Reversed/Memory/MiFillPteHierarchy.c
+
 struct typedef struct _PML4E
 {
 	union
@@ -128,6 +130,6 @@ uintptr_t __fastcall MiFillPteHierarchy(PVOID BaseAddress, PPTE_HIERARCHY PteHie
 
   _pml4e = (PPML4E)((((uintptr_t)_pdpte >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64);
   PteHierarchy->PageMapLevel4Entry = _pml4e;
-  
+
   return Result;
 }
