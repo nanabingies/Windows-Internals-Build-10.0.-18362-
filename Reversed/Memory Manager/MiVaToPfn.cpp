@@ -63,10 +63,12 @@ __int64 __fastcall MI_READ_PTE_LOCK_FREE(unsigned __int64 a1)
     && a1 <= 0xFFFFF6FB7DBED7F8ui64
     && (dword_140573380 & 0xC00000) != 0
     && *(_BYTE *)(*(_QWORD *)(__readgsqword(0x188u) + 0xB8) + 0x288i64) != 1
+    // && *(_BYTE *)(*(_QWORD *)(KeGetCurrentThread()->Process)->AddressPolicy) != 1
     && (result & 1) != 0
     && ((result & 0x20) == 0 || (result & 0x42) == 0) )
   {
-    v2 = *(_QWORD *)(*(_QWORD *)(__readgsqword(0x188u) + 0xB8) + 0x608i64);
+    v2 = *(_QWORD *)(*(_QWORD *)(__readgsqword(0x188u) + 0xB8) + 0x608i64); 
+    // KeGetCurrentThread()->Process->Vm->Shared->ShadowMapping;
     if ( v2 )
     {
       v3 = result | 0x20;
