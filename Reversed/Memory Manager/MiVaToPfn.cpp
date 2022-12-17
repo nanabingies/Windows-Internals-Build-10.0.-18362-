@@ -22,17 +22,18 @@ unsigned __int64 __fastcall MiVaToPfn(unsigned __int64 BaseAddress) {
     memset(PteHierarchy, 0x00, sizeof(PTE_HIERARCHY));
     MiFillPteHierarchy(BaseAddress, &PteHierarchy);
 
-    v3 = 4i64;
+    v3 = 4i64; // index
     do {
         // first gets pml4e, ptpte, pde then pte
         v4 = MI_READ_PTE_LOCK_FREE(*(_QWORD *)&PteHierarchy[v3]); 
         v14 = v4;
+        --v3;
     } while ( v3 && (v4 & 0x80u) == 0i64 ); // break if large page present ?
 
     // if large page is present, v14 will be contents of the page entry
-    v5 = ((unsigned __int64)sub_14006E5E0(&v14, v2) >> 12) & 0xFFFFFFFFFi64;
+    v5 = ((unsigned __int64)MI_READ_PTE_LOCK_FREE(&v14) >> 12) & 0xFFFFFFFFFi64;
 
-    if ( v6 ) {
+    if ( v3 ) {
         v7 = 1i64;
         v8 = BaseAddress >> 12;
         
@@ -42,8 +43,8 @@ unsigned __int64 __fastcall MiVaToPfn(unsigned __int64 BaseAddress) {
             v10 = v7 * (v9 & 0x1FF);
             v7 <<= 9;
             v5 += v10;
-            --v6;
-        } while ( v6 );
+            --v3;
+        } while ( v3 );
     }
 
     return v5;
