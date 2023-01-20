@@ -1,4 +1,3 @@
-https://github.com/vxcute/WindowsInternals/blob/main/Reversed/Memory/MiFillPteHierarchy.c
 
 struct typedef struct _PML4E
 {
