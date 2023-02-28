@@ -119,12 +119,12 @@ __int64 __fastcall PsCreateSystemThreadEx(
         InitializeObjectAttributes(_oa, NULL, 200, NULL, NULL);
     }
 
-    _v13 = PspCreateThread(ThreadHandle,
+    _v13 = nt!PspCreateThread(ThreadHandle,
         DesiredAccess,
-        (int)_oa,
+        &_oa,
         0,
         SystemProcess,
-        (unsigned __int64)v30 & -(__int64)((*v15 & 0x1000) != 0),
+        (unsigned __int64)var_22C & -(__int64)((SystemProcess & 0x1000) != 0),
         ClientId,
         0i64,
         0i64,
