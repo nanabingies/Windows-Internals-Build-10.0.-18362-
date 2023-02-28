@@ -2,7 +2,7 @@ PIO_WORKITEM __fastcall IoAllocateWorkItem(__int64 DeviceObject)
 {
   IO_WORKITEM* IoWorkItem; // rax
 
-  IoWorkItem = IopVerifierExAllocatePool(NonPagedPoolNx, 0x58i64);
+  IoWorkItem = reinterpret_cast<IO_WORKITEM*>(IopVerifierExAllocatePool(NonPagedPoolNx, 0x58i64));
   if ( IoWorkItem )
   {
     *(_QWORD *)(IoWorkItem + 0x38) = 0i64;      // # struct _ETHREAD* WorkOnBehalfThread; 
