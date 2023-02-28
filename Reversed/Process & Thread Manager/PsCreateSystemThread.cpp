@@ -1,6 +1,4 @@
 
-#include <ntifs.h>
-#include <ntddk.h>
 
 __int64 __fastcall PsCreateSystemThreadEx(__int64, __int64, _OBJECT_ATTRIBUTES*, __int64, CLIENT_ID*,
     __int64, __int64, __int64*, __int64*);
