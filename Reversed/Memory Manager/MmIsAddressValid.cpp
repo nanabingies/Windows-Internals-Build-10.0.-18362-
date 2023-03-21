@@ -126,36 +126,41 @@ char __fastcall MmIsAddressValidEx(unsigned __int64 VirtualAddress){
     __int64 v7; // rax
     char v8; // r9
     __int64 v9; // [rsp+0h] [rbp-30h]
-    __int64 _pml4e; // [rsp+8h] [rbp-28h]
-    __int64 _pdpte; // [rsp+10h] [rbp-20h]
-    __int64 _pde; // [rsp+18h] [rbp-18h]
-    __int64 _pte; // [rsp+20h] [rbp-10h]
+    __int64 _pml4eAddress; // [rsp+8h] [rbp-28h]
+    __int64 _pdpteAddress; // [rsp+10h] [rbp-20h]
+    __int64 _pdeAddress; // [rsp+18h] [rbp-18h]
+    __int64 _pteAddress; // [rsp+20h] [rbp-10h]
     __int64 PteHierarchy[4];
 
     if (((VirtualAddress >> 0x2f) + 1) <= 1){
     
-        _pml4e = ((VirtualAddress >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
-        _pdpte = (((unsigned __int64)_pml4e >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
-        _pde   = (((unsigned __int64)_pdpte >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
-        _pte   = (((unsigned __int64)_pde >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
+        // for detailed implementation, see MiFillPteHierarchy.cpp
+        _pml4eAddress = ((VirtualAddress >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
+        _pdpteAddress = (((unsigned __int64)_pml4eAddress >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
+        _pdeAddress   = (((unsigned __int64)_pdpteAddress >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
+        _pteAddress   = (((unsigned __int64)_pdeAddress >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
 
 
-        PteHierarchy[3] = _pml4e;
-        PteHierarchy[2] = _pdpte;
-        PteHierarchy[1] = _pde;
-        PteHierarchy[0] = _pte;
+        PteHierarchy[3] = _pml4eAddress;
+        PteHierarchy[2] = _pdpteAddress;
+        PteHierarchy[1] = _pdeAddress;
+        PteHierarchy[0] = _pteAddress;
 
         index = 4i64;
 
         while (1){
-            v3 = PteHierarchy[index];
+            v3 = PteHierarchy[index--];
             index -= 1;
             v4 = *(__int64*)v3;
 
             if ( v3 >= 0xFFFFF6FB7DBED000ui64
                 && v3 <= 0xFFFFF6FB7DBED7F8ui64
                 && (MiFlags & 0xC00000) != 0
-                && *(_BYTE *)(*(_QWORD *)(KeGetPcr()->Prcb __readgsqword(0x188u) + 184) + 648i64) != 1 )
+                /* KeGetPcr()->Pcrb.CurrentThread */
+                /* CurrentThread.ApcState.Process.AddressPolicy */
+                && *(_BYTE *)(*(_QWORD *)(__readgsqword(0x188u) + 184) + 648i64) != 1 /*AddressPolicy*/) {
+
+                }
         }
     }
 
