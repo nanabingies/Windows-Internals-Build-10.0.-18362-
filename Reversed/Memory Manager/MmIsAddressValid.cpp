@@ -130,26 +130,32 @@ char __fastcall MmIsAddressValidEx(unsigned __int64 VirtualAddress){
     __int64 _pdpte; // [rsp+10h] [rbp-20h]
     __int64 _pde; // [rsp+18h] [rbp-18h]
     __int64 _pte; // [rsp+20h] [rbp-10h]
-    PTE_HIERARCHY PteHierarchy[0x4];
+    __int64 PteHierarchy[4];
 
     if (((VirtualAddress >> 0x2f) + 1) <= 1){
+    
         _pml4e = ((VirtualAddress >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
         _pdpte = (((unsigned __int64)_pml4e >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
         _pde   = (((unsigned __int64)_pdpte >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
         _pte   = (((unsigned __int64)_pde >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
 
-.PageMapLevel4Entry.PageFrameNumber;
-        PteHierarchy[3] = (PML4E)_pml4e;
-        PteHierarchy.PageDirectoryPointerTableEntry.PageFrameNumber = _pdpte;
-        PteHierarchy.PageDirectoryEntry.PageFrameNumber = _pde;
-        PteHierarchy.PageTableEntry.PageFrameNumber = _pte;
 
-        index = 3i64;
+        PteHierarchy[3] = _pml4e;
+        PteHierarchy[2] = _pdpte;
+        PteHierarchy[1] = _pde;
+        PteHierarchy[0] = _pte;
+
+        index = 4i64;
 
         while (1){
-            v3 = &PteHierarchy[index];
+            v3 = PteHierarchy[index];
             index -= 1;
-            v4 = *(void**)v3;
+            v4 = *(__int64*)v3;
+
+            if ( v3 >= 0xFFFFF6FB7DBED000ui64
+                && v3 <= 0xFFFFF6FB7DBED7F8ui64
+                && (MiFlags & 0xC00000) != 0
+                && *(_BYTE *)(*(_QWORD *)(KeGetPcr()->Prcb __readgsqword(0x188u) + 184) + 648i64) != 1 )
         }
     }
 
