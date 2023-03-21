@@ -1,100 +1,3 @@
-typedef struct _PML4E
-{
-	union
-	{
-		struct
-		{
-			ULONG64 Present : 1;             
-			ULONG64 ReadWrite : 1;           
-			ULONG64 UserSupervisor : 1;      
-			ULONG64 PageWriteThrough : 1;    
-			ULONG64 PageCacheDisable : 1;    
-			ULONG64 Accessed : 1;            
-			ULONG64 Ignored1 : 1;
-			ULONG64 PageSize : 1;            
-			ULONG64 Ignored2 : 4;
-			ULONG64 PageFrameNumber : 36;    
-			ULONG64 Reserved : 4;
-			ULONG64 Ignored3 : 11;
-			ULONG64 ExecuteDisable : 1;      
-		};
-		ULONG64 Value;
-	};
-} PML4E, * PPML4E;
-
-typedef struct _PDPTE
-{
-	union
-	{
-		struct
-		{
-			ULONG64 Present : 1;              
-			ULONG64 ReadWrite : 1;            
-			ULONG64 UserSupervisor : 1;       
-			ULONG64 PageWriteThrough : 1;     
-			ULONG64 PageCacheDisable : 1;     
-			ULONG64 Accessed : 1;             
-			ULONG64 Ignored1 : 1;
-			ULONG64 PageSize : 1;             
-			ULONG64 Ignored2 : 4;
-			ULONG64 PageFrameNumber : 36;     
-			ULONG64 Reserved : 4;
-			ULONG64 Ignored3 : 11;
-			ULONG64 ExecuteDisable : 1;       
-		};
-		ULONG64 Value;
-	};
-} PDPTE, * PPDPTE;
-
-typedef struct _PDE
-{
-	union
-	{
-		struct
-		{
-			ULONG64 Present : 1;             
-			ULONG64 ReadWrite : 1;           
-			ULONG64 UserSupervisor : 1;      
-			ULONG64 PageWriteThrough : 1;    
-			ULONG64 PageCacheDisable : 1;    
-			ULONG64 Accessed : 1;            
-			ULONG64 Ignored1 : 1;
-			ULONG64 PageSize : 1;            
-			ULONG64 Ignored2 : 4;
-			ULONG64 PageFrameNumber : 36;    
-			ULONG64 Reserved : 4;
-			ULONG64 Ignored3 : 11;
-			ULONG64 ExecuteDisable : 1;      
-		};
-		ULONG64 Value;
-	};
-} PDE, * PPDE;
-
-typedef struct _PTE
-{
-	union
-	{
-		struct
-		{
-			ULONG64 Present : 1;             
-			ULONG64 ReadWrite : 1;           
-			ULONG64 UserSupervisor : 1;      
-			ULONG64 PageWriteThrough : 1;    
-			ULONG64 PageCacheDisable : 1;    
-			ULONG64 Accessed : 1;            
-			ULONG64 Dirty : 1;               
-			ULONG64 PageAccessType : 1;      
-			ULONG64 Global : 1;              
-			ULONG64 Ignored2 : 3;
-			ULONG64 PageFrameNumber : 36;    
-			ULONG64 Reserved : 4;
-			ULONG64 Ignored3 : 7;
-			ULONG64 ProtectionKey : 4;       
-			ULONG64 ExecuteDisable : 1;      
-		};
-		ULONG64 Value;
-	};
-} PTE, * PPTE;
 
 typedef struct _PTE_HIERARCHY
 {
@@ -110,7 +13,7 @@ typedef struct _PTE_HIERARCHY
 
 char __fastcall MmIsAddressValidEx(unsigned __int64 VirtualAddress);
 
-__int64 MmIsAddressValid(void* BaseAddress)
+__int64 MmIsAddressValid(PVOID BaseAddress)
 {
   return MmIsAddressValidEx((unsigned __int64)BaseAddress);
 }
@@ -160,9 +63,42 @@ char __fastcall MmIsAddressValidEx(unsigned __int64 VirtualAddress){
                 /* CurrentThread.ApcState.Process.AddressPolicy */
                 && *(_BYTE *)(*(_QWORD *)(__readgsqword(0x188u) + 184) + 648i64) != 1 /*AddressPolicy*/) {
 
-                }
+                    if ( (v4 & 1) == 0 )
+                        return 0;
+
+                    if ( (v4 & 0x20) == 0 || (v4 & 0x42) == 0 ) ) {
+                        /* KeGetPcr()->Pcrb.CurrentThread */
+                        /* CurrentThread.ApcState.Process.AddressPolicy */
+                        v6 = *(_QWORD *)(*(_QWORD *)(__readgsqword(0x188u) + 184) + 1544i64);
+          
+                    if ( v6 ) {
+                        v7 = *(_QWORD *)(v6 + 8 * ((v3 >> 3) & 0x1FF));
+                        v8 = v4 | 0x20;
+                        if ( (v7 & 0x20) == 0 )
+                            v8 = v4;
+
+                        v4 = v8;
+
+                        if ( (v7 & 0x42) != 0 )
+                            v4 = v8 | 0x42;
+          }
         }
+
+            }
+
+            if ((v4 & 1) == 0) // Page Present?? == false
+                return 0;
+
+            if ( (v4 & 0x80u) != 0i64 )  // # large page enabled
+                break;
+
+            if ( index == 0x0 ) // already got to page pte
+                return 1;
+        }
+
+        if ( (VirtualAddress < 0xFFFFF68000000000ui64) || (VirtualAddress > 0xFFFFF6FFFFFFFFFFui64) )
+            return 1;
     }
 
-    return 1;
+    return 0;
 }
