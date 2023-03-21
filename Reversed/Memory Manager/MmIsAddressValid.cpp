@@ -96,6 +96,18 @@ typedef struct _PTE
 	};
 } PTE, * PPTE;
 
+typedef struct _PTE_HIERARCHY
+{
+    /*PTE PageTableEntry;
+    PDE PageDirectoryEntry;
+    PDPTE PageDirectoryPointerTableEntry;
+	PML4E PageMapLevel4Entry;*/
+    __int64 PageTableEntry;
+    __int64 PageDirectoryEntry;
+    __int64 PageDirectoryPointerTableEntry;
+	__int64 PageMapLevel4Entry;
+}PTE_HIERARCHY, * PPTE_HIERARCHY;
+
 char __fastcall MmIsAddressValidEx(unsigned __int64 VirtualAddress);
 
 __int64 MmIsAddressValid(void* BaseAddress)
@@ -105,13 +117,40 @@ __int64 MmIsAddressValid(void* BaseAddress)
 
 
 char __fastcall MmIsAddressValidEx(unsigned __int64 VirtualAddress){
-    PTE _pte; 
-    PDE _pde;  
-    PDPTE _pdpte;
-    PML4E _pml4e;
+    
+
+    __int64 index; // rdx
+    unsigned __int64 v3; // r9
+    __int64 v4; // rcx
+    __int64 v6; // rax
+    __int64 v7; // rax
+    char v8; // r9
+    __int64 v9; // [rsp+0h] [rbp-30h]
+    __int64 _pml4e; // [rsp+8h] [rbp-28h]
+    __int64 _pdpte; // [rsp+10h] [rbp-20h]
+    __int64 _pde; // [rsp+18h] [rbp-18h]
+    __int64 _pte; // [rsp+20h] [rbp-10h]
+    PTE_HIERARCHY PteHierarchy[0x4];
 
     if (((VirtualAddress >> 0x2f) + 1) <= 1){
+        _pml4e = ((VirtualAddress >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
+        _pdpte = (((unsigned __int64)_pml4e >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
+        _pde   = (((unsigned __int64)_pdpte >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
+        _pte   = (((unsigned __int64)_pde >> 9) & 0x7FFFFFFFF8i64) - 0x98000000000i64;
 
+.PageMapLevel4Entry.PageFrameNumber;
+        PteHierarchy[3] = (PML4E)_pml4e;
+        PteHierarchy.PageDirectoryPointerTableEntry.PageFrameNumber = _pdpte;
+        PteHierarchy.PageDirectoryEntry.PageFrameNumber = _pde;
+        PteHierarchy.PageTableEntry.PageFrameNumber = _pte;
+
+        index = 3i64;
+
+        while (1){
+            v3 = &PteHierarchy[index];
+            index -= 1;
+            v4 = *(void**)v3;
+        }
     }
 
     return 1;
