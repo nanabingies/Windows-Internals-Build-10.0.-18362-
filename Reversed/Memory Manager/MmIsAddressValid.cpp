@@ -59,16 +59,12 @@ char __fastcall MmIsAddressValidEx(unsigned __int64 VirtualAddress){
             if ( v3 >= 0xFFFFF6FB7DBED000ui64
                 && v3 <= 0xFFFFF6FB7DBED7F8ui64
                 && (MiFlags & 0xC00000) != 0
-                /* KeGetPcr()->Pcrb.CurrentThread */
-                /* CurrentThread.ApcState.Process.AddressPolicy */
                 && *(_BYTE *)(*(_QWORD *)(__readgsqword(0x188u) + 184) + 648i64) != 1 /*AddressPolicy*/) {
 
                     if ( (v4 & 1) == 0 )
                         return 0;
 
                     if ( (v4 & 0x20) == 0 || (v4 & 0x42) == 0 ) ) {
-                        /* KeGetPcr()->Pcrb.CurrentThread */
-                        /* CurrentThread.ApcState.Process.AddressPolicy */
                         v6 = *(_QWORD *)(*(_QWORD *)(__readgsqword(0x188u) + 184) + 1544i64);
           
                     if ( v6 ) {
@@ -81,8 +77,8 @@ char __fastcall MmIsAddressValidEx(unsigned __int64 VirtualAddress){
 
                         if ( (v7 & 0x42) != 0 )
                             v4 = v8 | 0x42;
-          }
-        }
+                    }
+                }
 
             }
 
