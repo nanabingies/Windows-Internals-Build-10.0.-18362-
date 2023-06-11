@@ -4,3 +4,7 @@
 2. https://codemachine.com/articles/prototype_ptes.html
 3. https://rayanfam.com/topics/inside-windows-page-frame-number-part1/
 4. https://rayanfam.com/topics/inside-windows-page-frame-number-part2/
+
+
+# Callbacks
+1. https://codemachine.com/articles/kernel_callback_functions.html
